@@ -1,6 +1,6 @@
 # Sicherheit und verantwortlicher Betrieb
 
-> **Dokumentationsentwurf.** Der aktuelle PUB-07/PUB-08-Kandidat ist noch nicht für die öffentliche Veröffentlichung oder produktive Installation freigegeben.
+> **Öffentliche Quellfassung v1.1.0 (experimental).** Als Quellcode veröffentlicht; noch keine HAOS-Produktions- oder Installationsfreigabe. Es wird kein vorgebautes Container-Image angeboten.
 
 ## Grundprinzipien
 
@@ -18,14 +18,14 @@ Der HA-MCP-Proxy erlaubt im gegenwärtigen Quellstand nur die drei Upstream-Werk
 
 ## Offene Sicherheitsthemen vor Release
 
-1. Im zuletzt geprüften nativen ARM64-Build meldete Grype **14 High-Matches zu neun CVE-IDs** und keine Critical. Die Befunde für SQLite und OpenSSL sind weder als behoben noch als akzeptiert markiert. Die bestehende Freigabeprüfung bleibt bis zu technisch belegten Entscheidungen bzw. einer ausdrücklichen Restrisikogenehmigung gesperrt. Pauschales Unterdrücken oder ungeprüfte Edge-Upgrades sind keine Lösung.
+1. Im zuletzt geprüften nativen ARM64-Build meldete Grype **14 High-Matches zu neun CVE-IDs** und keine Critical. Die neun bekannten High-CVEs wurden für die geprüften betroffenen Paketversionen einzeln als Restrisiken bewertet und dokumentiert; unterstützte Stable-Fixversionen waren beim letzten Abgleich nicht verfügbar. Das geänderte Gate hat Regressionstests bestanden. Ein offizieller erfolgreicher Sicherheits-Gate-Lauf für den aktuellen Quellstand ist damit noch nicht belegt. Pauschales Unterdrücken oder ungeprüfte Edge-Upgrades sind keine Lösung.
 
 
-**Bekannte offene IDs des zuletzt geprüften Builds (SQLite/OpenSSL):** `CVE-2026-119586`, `CVE-2026-119379`, `CVE-2026-119374`, `CVE-2026-119373`, `CVE-2026-124709`, `CVE-2026-107494`, `CVE-2026-121482`, `CVE-2026-84786` und `CVE-2026-107493`. Diese Liste ist auf den früher geprüften Containerpaketstand bezogen und **keine** Zusage über die aktuelle Sicherheitslage späterer Selbstbauten. Die Source-only-Veröffentlichung beseitigt keine in den gepinnten Abhängigkeiten verbliebene Schwachstelle. Alle neun Entscheidungen sind intern noch `pending`; weder pauschal als nicht anwendbar noch als akzeptiert markiert. Für Installation auf produktivem HAOS sind eine aktuelle Paket-/CVE-Bewertung und eigene geprüfte Betriebsfreigabe erforderlich.
+**Bekannte offene IDs des zuletzt geprüften Builds (SQLite/OpenSSL):** `CVE-2026-119586`, `CVE-2026-119379`, `CVE-2026-119374`, `CVE-2026-119373`, `CVE-2026-124709`, `CVE-2026-107494`, `CVE-2026-121482`, `CVE-2026-84786` und `CVE-2026-107493`. Diese Liste ist auf den früher geprüften Containerpaketstand bezogen und **keine** Zusage über die aktuelle Sicherheitslage späterer Selbstbauten. Die Source-only-Veröffentlichung beseitigt keine in den gepinnten Abhängigkeiten verbliebene Schwachstelle. Alle neun High-Risiken sind für den geprüften Paketstand einzeln dokumentiert und unter fortgeltenden technischen Bedingungen akzeptiert. Diese Bewertungen sind keine Behauptung, dass Schwachstellen behoben oder ausgeschlossen sind. Für die produktive HAOS-Installation bleibt eine separate Freigabe erforderlich.
 
 2. **OCI-Herkunft nachgewiesen:** Die offizielle SLSA-v1-Attestierung wurde für den exakten gepinnten OCI-Index-Digest mit GitHub CLI verifiziert, einschließlich OpenAI-Releaseworkflow, Tag und Quellcommit. Der abweichende Hash eines separat verteilten Release-ZIP-Binarys ist kein Gegenbeweis für das attestierte OCI-Image; dessen Byteidentität wird nicht behauptet. Dies ist kein Ersatz für die übrigen Sicherheitsprüfungen.
 3. Die integrierte Laborabnahme auf isoliertem ARM64-HAOS/Supervisor ist weiterhin **NOT_RUN**: AppArmor-Allow-/Deny-Nachweise, Tunnel, MCP/Netzwerk, Neustart, Backup und Recovery. Dieser Nachweis ist für eine **als geprüft beworbene Installation oder ein produktives Update** erforderlich, nicht für den eng begrenzten Source-only-Snapshot mit ausdrücklicher Kennzeichnung seines Teststands. Ältere, privat getestete Versionen gelten nicht als Abnahme des geänderten GitHub-Kandidaten.
-4. Die finale Quellbaumprüfung muss private Daten, Fremdcode, erforderliche Lizenz-/Copyright-Hinweise, Dokumentation und ein sauberes neues Git-History-Root umfassen.
+4. Der öffentliche Quellbaum wurde als minimierter Snapshot mit eigener Git-Historie veröffentlicht. Rechte-/Lizenzhinweise und neue Versionsänderungen sind weiterhin vor jeder Veröffentlichung zu prüfen.
 
 ## Vor Änderungen und bei Störungen
 
@@ -35,4 +35,4 @@ Vor einem Upgrade ist eine überprüfte Sicherung des funktionierenden Stands er
 
 ## Meldung von Sicherheitsproblemen
 
-Keine Zugangsdaten, internen Adressen, Konfigurationsdateien oder personenbezogenen Daten in öffentliche Issues einstellen. Vor einer Veröffentlichung **GitHub Private Vulnerability Reporting** im neuen öffentlichen Repository aktivieren und das dortige private Meldeformular in dieser Datei verlinken. Bis zur tatsächlichen Aktivierung ist **kein privater Meldeweg als verfügbar zu behaupten**; öffentliche Issues dürfen keine sensiblen Meldungen enthalten.
+Keine Zugangsdaten, internen Adressen, Konfigurationsdateien oder personenbezogenen Daten in öffentliche Issues einstellen. Für vertrauliche Sicherheitsmeldungen das GitHub-Verfahren zur privaten Schwachstellenmeldung des Repositories nutzen, sofern es im Repository aktiviert und sichtbar ist. Keine sensiblen Informationen in öffentliche Issues schreiben.
