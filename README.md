@@ -158,6 +158,7 @@ Dieser Befehl baut **nur das Container-Image**. Er installiert oder startet kein
 ## Weiterentwicklung
 
 Im Mittelpunkt stehen eine wartungsarme Architektur, nachvollziehbare Releases und die kontinuierliche Verbesserung von Sicherheit und Bedienbarkeit. Neue Funktionen werden gezielt ergänzt und durch automatisierte Tests abgesichert.
+
 ## Lizenz und Verantwortung
 
 Der eigene, entsprechend gekennzeichnete Projektquellcode wird unter **[Apache License 2.0](LICENSE)** veröffentlicht, soweit die erforderlichen Rechte vorliegen. Externe Komponenten – darunter Home Assistant, FastMCP, Python, Alpine und der Tunnel-Client – behalten ihre jeweiligen Lizenzen und Markenrechte. Das Projekt ist **keine offizielle Veröffentlichung von Home Assistant oder OpenAI**.
