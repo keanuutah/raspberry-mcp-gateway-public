@@ -1,59 +1,189 @@
+<div align="center">
+
 # Raspberry MCP Gateway
 
-> **Am 23.11.2026 als Source-only-Quellcode veröffentlicht – kein freigegebenes HAOS-Installations- oder Produktrelease.** Die veröffentlichte App-Quellfassung (`1.1.0`, experimentell) ist nicht unter HAOS abgenommen und nicht für einen ungeprüften produktiven Einsatz freigegeben.
+### Connect AI to your Smart Home. Securely.
 
-Raspberry MCP Gateway ergänzt Home Assistant OS um einen lokalen MCP-Gateway-Prozess, der über **einen** OpenAI-Tunnel erreichbar ist. Die Anwendung verbindet die bewusst beschränkten Home-Assistant-MCP-Werkzeuge mit lokalen, standardmäßig lesenden Diagnose- und Vorschaufunktionen. Schreibfunktionen sind separat geschützt und standardmäßig deaktiviert.
+**Ein Python-basiertes MCP-Gateway für die kontrollierte Verbindung von ChatGPT und Home Assistant.**  
+Ein Tunnel. Klar definierte Berechtigungen. Nachvollziehbare Änderungen.
 
-## Umfang und Voraussetzungen
+[![Version](https://img.shields.io/badge/version-1.1.0-2563eb?style=flat-square)](openai_mcp_tunnel/config.yaml)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-OS-41bdf5?style=flat-square)](https://www.home-assistant.io/)
+[![Platform](https://img.shields.io/badge/platform-ARM64-64748b?style=flat-square)](#installation-und-selbstbau)
+[![Python](https://img.shields.io/badge/Python-3.15-3776ab?style=flat-square)](openai_mcp_tunnel/Dockerfile)
+[![License](https://img.shields.io/badge/license-Apache--2.0-16a34a?style=flat-square)](LICENSE)
+[![Status](https://img.shields.io/badge/status-experimental-f59e0b?style=flat-square)](#projektstatus)
 
-- Zielplattform laut App-Metadaten: `aarch64` / ARM64; Home Assistant OS und Add-on-/App-Supervisor.
-- Der Quellcode enthält das Dockerfile, `apk-arm64.lock` und `requirements-arm64.lock`. **Es wird kein vorgebautes Container-Image angeboten.** Nutzer bauen selbst mit Docker/BuildKit; die Buildumgebung benötigt Zugriff auf die offiziellen OCI-Registries, Alpine Stable und PyPI.
-- Das Image kopiert den Tunnel-Client aus einem gepinnten offiziellen OCI-Image; Python und Linux-Systempakete stammen aus den im Dockerfile festgelegten Quellen.
-- Für den Betrieb sind ein korrekt eingerichteter Home-Assistant-MCP-Endpunkt, ein dafür berechtigtes Home-Assistant-Zugriffstoken und die gültigen Tunnel-Zugangsdaten erforderlich. Zugangsdaten niemals ins Repository oder in Supportprotokolle kopieren.
-- Der Quellstand verwendet im Launcher nur die HA-MCP-Zieladressen `http://homeassistant.local:8123/api/mcp` oder `http://homeassistant:8123/api/mcp`. Bei abweichender Netzwerkkonfiguration kann der Start scheitern; keine beliebigen externen Zieladressen freischalten.
+**[Funktionen](#funktionen)** · **[Architektur](#architektur)** · **[Security by Design](#security-by-design)** · **[Installation](#installation-und-selbstbau)** · **[Engineering & CI](#engineering--ci)**
 
-## ARM64-Image lokal bauen (Docker/BuildKit)
+</div>
 
-Aus dem Verzeichnis, das den Ordner `openai_mcp_tunnel/` enthält:
+---
 
-```sh
+## Die Idee
+
+Ein Smart Home mit KI zu verbinden ist technisch einfach. **Den Zugriff dabei sicher, überprüfbar und wartbar zu gestalten, ist die eigentliche Architekturaufgabe.**
+
+Raspberry MCP Gateway verbindet einen OpenAI-Tunnel mit einem lokalen Gateway auf **Home Assistant OS**. Über das **Model Context Protocol (MCP)** stehen ausgewählte Home-Assistant-Funktionen sowie zusätzliche lokale Diagnose-, Dashboard- und YAML-Werkzeuge zur Verfügung.
+
+Statt einer offenen Allzweck-Schnittstelle setzt das Projekt auf **Least Privilege**, explizite Freigaben und nachvollziehbare Änderungen. Im Mittelpunkt steht keine möglichst große Funktionsliste, sondern eine kontrollierbare Integration.
+
+## Funktionen
+
+| Baustein | Umsetzung |
+| --- | --- |
+| 🔌 **AI × Smart Home** | Verbindung von ChatGPT und Home Assistant über einen einzelnen MCP-Tunnel. |
+| 🧭 **Kontrollierter HA-Zugriff** | Der HA-MCP-Proxy beschränkt weitergeleitete Upstream-Werkzeuge auf eine explizite Allowlist. |
+| 📄 **YAML Guard** | Lesender Zugriff und geschützte Änderungen unter `/config/packages/` mit Vorschau, Diff, SHA256-Bindung und Backups. |
+| 🖥️ **Dashboard-Werkzeuge** | Übersicht, Diagnose und gesondert abgesicherte Änderungs- und Wiederherstellungsabläufe für Lovelace-Dashboards. |
+| 🛡️ **AppArmor & Berechtigungen** | Eingeschränkte Dateipfade, Sicherheitsprüfungen und standardmäßig deaktivierte Schreibfunktionen. |
+| ♻️ **Recovery & Wartung** | Gezielte Backup-, Vorschau- und Wiederherstellungsfunktionen mit separaten Freigaben. |
+
+**Bewusste Grenze:** Nicht jede Funktion ist automatisch zum Schreiben berechtigt. Die meisten Abläufe sind zunächst lesend oder liefern nur einen überprüfbaren Änderungsvorschlag.
+
+## Architektur
+
+```mermaid
+flowchart LR
+    AI[ChatGPT / MCP-Client] -->|MCP über Tunnel| T[OpenAI-Tunnel-Client]
+    subgraph HAOS[Home Assistant OS · ARM64]
+        T --> G[Raspberry MCP Gateway · Python / FastMCP]
+        G -->|Allowlist| H[Home Assistant MCP API]
+        G -->|Lesen / geschützte Freigaben| Y[YAML-Pakete]
+        G -->|Lesen / geschützte Freigaben| D[Lovelace-Dashboards]
+        A[AppArmor + Supervisor-Konfiguration] -. begrenzt .-> G
+    end
+```
+
+**Architekturprinzipien**
+
+- **Ein Gateway, ein Tunnel:** keine zweite parallel aktive Tunnelinstanz.
+- **Separation of concerns:** Tunneltransport, HA-Proxy und lokale Verwaltungswerkzeuge erfüllen getrennte Aufgaben.
+- **Fail closed:** Fehlende, ungültige oder nicht passende Freigaben sollen Schreiboperationen verhindern.
+- **Standardwerkzeuge statt Eigenbau:** Python/pip, Alpine/apk und Docker/BuildKit übernehmen Abhängigkeitsverwaltung und Image-Builds.
+- **Keine Geheimnisse im Repository:** Zugangsdaten werden ausschließlich in der lokalen Home-Assistant-App-Konfiguration hinterlegt.
+
+## Security by Design
+
+Sicherheit wird nicht nur in der Dokumentation beschrieben, sondern in mehreren Ebenen umgesetzt:
+
+| Schutzschicht | Mechanismus |
+| --- | --- |
+| **MCP-Werkzeugauswahl** | Beschränkte Weiterleitung ausgewählter HA-Upstream-Werkzeuge. |
+| **Schreibzugriffe** | `MCP_WRITE_ENABLED=false` als sichere Standardvorgabe. |
+| **Einzelfreigaben** | Aktionsbezogene Freigabewerte; bei geschützten Dateioperationen an den geprüften SHA256-Zustand gebunden. |
+| **Dateisystem** | Auf erlaubte Bereiche eingegrenzte Anwendungsgates und AppArmor-Regeln. |
+| **Nachvollziehbarkeit** | Diff- und SHA256-Vorschau vor Änderungen; vorhandene Sicherungs- und Rückfallmechanismen. |
+| **Supply Chain** | Festgelegte Basisimage-Digests, Paket-Lockdateien und ARM64-Buildprüfungen. |
+
+**Wichtige technische Grenze:** Das Home-Assistant-Konfigurationsverzeichnis ist für die App technisch schreibbar eingebunden. Die tatsächliche Beschränkung hängt daher von der geladenen AppArmor-Policy und den Anwendungsgates ab; `MCP_WRITE_ENABLED=false` ersetzt auch keine eingeschränkten Rechte des verwendeten Home-Assistant-Tokens.
+
+Details zu Sicherheitsgrenzen, Restrisiken und dem Umgang mit Schwachstellen: **[SECURITY.md](SECURITY.md)**.
+
+## Technologie-Stack
+
+| Ebene | Technologien |
+| --- | --- |
+| **Gateway / MCP** | Python 3.15, FastMCP, YAML-Verarbeitung |
+| **Smart-Home-Plattform** | Home Assistant OS, Supervisor, Lovelace |
+| **Container & Betrieb** | Docker / BuildKit, Alpine Linux, ARM64, AppArmor |
+| **Abhängigkeiten** | pip mit Hash-Pinning, apk mit Paketversionen und Checksummen |
+| **Qualitätssicherung** | Python `unittest`, GitHub Actions, native ARM64-Buildjobs |
+| **Supply-Chain-Prüfung** | Syft / SPDX-SBOM, Grype-CVE-Scan, dokumentierte Risikoentscheidungen |
+
+## Engineering & CI
+
+Die Entwicklung findet in einem **privaten Entwicklungsrepository** statt. Dieses öffentliche Repository enthält einen bewusst begrenzten, zur Veröffentlichung geprüften **Quellcode-Snapshot** – keine private Git-Historie, keine Zugangsdaten und keine internen Testartefakte.
+
+Der Entwicklungsprozess verwendet:
+
+1. **Pull-Request-basierte Änderungen** mit nachvollziehbaren Commits und Regressionstests.
+2. **Offline-Tests und Syntaxprüfungen** in GitHub Actions (mehr als 280 Tests im dokumentierten Entwicklungsstand).
+3. **Native ARM64-Builds** mit Docker/BuildKit statt eigener Download- und Paketverwaltung.
+4. **Software Bill of Materials (SBOM)** im SPDX-Format und Schwachstellenprüfung mit Grype.
+5. **Dokumentierte Restrisikoentscheidungen**, statt CVE-Meldungen pauschal zu unterdrücken.
+
+Die genannten CI-Prüfungen stammen aus dem privaten Entwicklungsprozess. **Dieses öffentliche Snapshot-Repository bietet derzeit keinen eigenständigen öffentlichen CI-Status-Badge.** Ein bestandener Offline-Test ersetzt keine vollständige HAOS- oder Sicherheitsabnahme.
+
+## Installation und Selbstbau
+
+### Voraussetzungen
+
+- Home Assistant OS mit Supervisor auf **ARM64 / `aarch64`**.
+- Erreichbarer interner Home-Assistant-MCP-Endpunkt und ein geeignet eingeschränktes HA-Zugriffstoken.
+- Gültige Tunnel-Zugangsdaten.
+- Netzwerkzugriff auf die im Dockerfile festgelegten offiziellen Bezugsquellen während des Builds.
+- Ein **geprüftes Backup** und ein Rückfallweg vor dem produktiven Austausch einer bestehenden Installation.
+
+### Home-Assistant-App-Repository
+
+Das Repository enthält die Home-Assistant-App im Verzeichnis `openai_mcp_tunnel/` sowie die Metadatei `repository.yaml`.
+
+Repository-Adresse:
+
+```text
+https://github.com/keanuutah/raspberry-mcp-gateway-public
+```
+
+In Home Assistant: **Einstellungen → Apps → App-Store → Repositories** und die URL hinzufügen, sofern sie noch nicht vorhanden ist. Anschließend die App **Raspberry MCP Gateway** auswählen. Bei der erstmaligen Installation **nicht starten**, bevor die Konfiguration geprüft ist.
+
+> Die App ist aktuell als **Experimental** markiert. Der bereits nachgewiesene Betrieb auf einer privaten HAOS-Installation ist keine allgemeine Freigabe für fremde Produktionssysteme. Installation und Betrieb erfolgen eigenverantwortlich; bitte die Einschränkungen in [SECURITY.md](SECURITY.md) berücksichtigen.
+
+### App-Konfiguration
+
+| Option | Bedeutung / Empfehlung |
+| --- | --- |
+| `CONTROL_PLANE_TUNNEL_ID` | Eigene Tunnelkennung; nur lokal eintragen. |
+| `CONTROL_PLANE_API_KEY` | Tunnel-Schlüssel; niemals veröffentlichen. |
+| `MCP_SERVER_URL` | Interner HA-MCP-Endpunkt; nur die im Launcher zugelassenen lokalen Adressen verwenden. |
+| `HA_ACCESS_TOKEN` | HA-Zugangstoken mit minimal benötigten Rechten. |
+| `MCP_WRITE_ENABLED` | Standardmäßig `false`. |
+| `APPROVED_ACTION` | Standardmäßig leer; Einmalfreigaben nicht wiederverwenden. |
+| `BACKUP_RETENTION_MODE` | Standardmäßig `off`. |
+
+Die App ist mit `boot: manual`, `apparmor: true` und `stage: experimental` definiert. **Keine zweite Instanz mit denselben Tunnel-Zugangsdaten parallel starten.**
+
+### Image separat mit Docker bauen
+
+Für einen eigenen, ARM64-fähigen Docker-Builder aus dem Repository-Root:
+
+```bash
 docker build --platform linux/arm64 \
   --tag raspberry-mcp-gateway:local-review \
   ./openai_mcp_tunnel
 ```
 
-Der Befehl ist für einen ARM64-fähigen Docker-Builder vorgesehen und wurde als Dokumentationsbeispiel aus dem Dockerfile abgeleitet. **Das ist noch keine freigegebene Installationsanleitung für Home Assistant OS**. Er installiert oder startet die App nicht. Keine Zugangsdaten als Build-Argumente verwenden.
+Dieser Befehl baut **nur das Container-Image**. Er installiert oder startet keine Home-Assistant-App. Das Repository veröffentlicht **kein vorgebautes OCI-/GHCR-Image**. Für Builds werden gepinnte Basisimages sowie die Dateien `apk-arm64.lock` und `requirements-arm64.lock` verwendet.
 
-## Home Assistant OS: App-Konfiguration
+## Projektstatus
 
-Die enthaltene `openai_mcp_tunnel/config.yaml` legt das App-Schema fest. `stage: experimental` kennzeichnet diesen **nicht produktionsfreigegebenen Quellstand**; `slug: openai_mcp_tunnel` und die sicheren Laufzeitoptionen bleiben für die bestehenden Integrationen unverändert. Das öffentliche Quellcode-Repository ist bereits eingerichtet; in der enthaltenen App-Konfiguration ist noch keine projektbezogene `url` eingetragen:
-
-| Option | Zweck / sichere Vorgabe |
+| Thema | Stand |
 | --- | --- |
-| `CONTROL_PLANE_TUNNEL_ID` | Tunnelkennung; nur in der lokalen App-Konfiguration setzen |
-| `CONTROL_PLANE_API_KEY` | Tunnel-Zugangsdaten; Geheimnis |
-| `MCP_SERVER_URL` | Interner Home-Assistant-MCP-Endpunkt |
-| `HA_ACCESS_TOKEN` | Berechtigtes HA-Token; Geheimnis |
-| `MCP_WRITE_ENABLED` | **`false`**: Schreibzugriffe standardmäßig aus |
-| `APPROVED_ACTION` | Leer; Einmalfreigabe nur im gesondert genehmigten Anwendungsfall |
-| `BACKUP_RETENTION_MODE` | **`off`**; keine automatische Löschung |
+| **v1.1.0 auf ARM64/HAOS** | Läuft in einer privaten Home-Assistant-Installation; Tunnel und lesende MCP-/Gateway-Funktionen wurden praktisch bestätigt. |
+| **AppArmor** | Die laufende App meldet `enforce`; die korrekte Zuordnung zum GitHub-App-Profil ist noch nicht abschließend bestätigt. Eine gezielte Diagnosekorrektur ist im privaten Entwicklungszweig getestet, aber noch nicht öffentlich veröffentlicht. |
+| **CVE-Status** | Im letzten nativen ARM64-Scan: **0 Critical**, **9 unterschiedliche High-CVEs** (14 Pakettreffer). Die High-Risiken sind einzeln bewertet und unter dokumentierten Bedingungen akzeptiert; es waren keine geeigneten Stable-Fixversionen verfügbar. Kein offizieller Gate-PASS für den zuletzt veröffentlichten Image-Stand nachgewiesen. |
+| **Automatisierte Tests** | Reguläre private CI und gezielte Regressionstests erfolgreich; keine allgemeine HAOS-Laborabnahme. |
+| **Öffentliche Bereitstellung** | Quellcode und HAOS-App-Metadaten, **kein vorgebautes Container-Image**. |
+| **Release-Einstufung** | `experimental` – keine allgemeine Produktionsfreigabe. |
 
-Die App startet manuell (`boot: manual`); `apparmor: true` ist konfiguriert. Der Home-Assistant-Konfigurationsmount ist laut App-Metadaten technisch schreibbar; die tatsächlichen Schreibgrenzen müssen deshalb **durch das geladene AppArmor-Profil und die Anwendungsgates** erzwungen werden. Das ist im aktuellen Entwicklungsstand noch nicht vollständig in einem isolierten ARM64-HAOS-Labor nachgewiesen.
+**Transparenz:** Die erfolgreiche private Inbetriebnahme ist ein Praxistest, keine vollständige, unabhängige Sicherheitszertifizierung. Offene Prüfungen werden nicht als bestanden dargestellt. Bekannte CVEs und weitere Sicherheitsgrenzen sind in **[SECURITY.md](SECURITY.md)** dokumentiert.
 
-**Keine automatische Installation auf einem produktiven Home Assistant:** Ältere, privat betriebene Versionen des Gateways sind keine HAOS-Abnahme dieses veränderten Quellkandidaten. Der aktuelle Quellstand ist noch nicht auf HAOS integriert getestet. Die umfassende HAOS-/AppArmor-/Recovery-Abnahme ist **keine Voraussetzung für eine klar als ungetestet gekennzeichnete Source-only-Veröffentlichung**, wohl aber vor einer Installations-/Produktfreigabe. Diese Anleitung ersetzt sie nicht.
+## Weiterentwicklung
 
-## Sicherheits- und Versionsstand
+Der Fokus liegt auf einer einfachen, sicheren und wartungsarmen Integration. Weitere Verbesserungen betreffen insbesondere die abschließende AppArmor-Profilverifikation auf GitHub-installierten Apps, die Release-Nachweise und die technische Dokumentation. Änderungen sollen bestehende Betriebsabläufe verbessern, statt parallele Systeme aufzubauen.
 
-Die aktuelle Entwicklungsfassung hat in privater CI mit Python 3.15/FastMCP 4.2.4 **284 Offline-Tests** bestanden, darunter die Beschränkung des HA-Proxys auf drei Werkzeuge sowie Verweigerungs- und Reconnect-Tests. Das ist **kein** vollständiger HAOS-/AppArmor-Nachweis.
+## Lizenz und Verantwortung
 
-Im nativen ARM64-Scan zur v1.1.0 wurden **neun bekannte High-CVE-IDs** in SQLite/OpenSSL und keine Critical-CVEs gemeldet. Die neun High-Risiken sind einzeln bewertet; das aktualisierte CVE-Gate hat seine regulären Tests bestanden, aber für den veröffentlichten Stand liegt noch kein eigenständiger offizieller Gate-PASS vor. Die SLSA-v1-Herkunft des gepinnten offiziellen Tunnel-OCI-Image-Indexes ist inzwischen bestätigt. **Keine Sicherheits- oder Produktionsfreigabe** ableiten.
+Der eigene, entsprechend gekennzeichnete Projektquellcode wird unter **[Apache License 2.0](LICENSE)** veröffentlicht, soweit die erforderlichen Rechte vorliegen. Externe Komponenten – darunter Home Assistant, FastMCP, Python, Alpine und der Tunnel-Client – behalten ihre jeweiligen Lizenzen und Markenrechte. Das Projekt ist **keine offizielle Veröffentlichung von Home Assistant oder OpenAI**.
 
-Siehe [Sicherheitsleitfaden](SECURITY.md) für Betrieb, Zugangsdaten, Freigaben, Grenzen und Wiederherstellung.
+Sicherheitsmeldungen und Hinweise zur verantwortlichen Offenlegung: **[SECURITY.md](SECURITY.md)**. Bitte niemals Zugangsdaten oder private Home-Assistant-Konfigurationen in öffentlichen Issues posten.
 
+---
 
+<div align="center">
 
-**Transparenz zum Sicherheitsstatus:** Der veröffentlichte Quellcode wird **ohne Hersteller-Image und ohne Zusage einer getesteten HAOS-Installation** angeboten. Die neun im ARM64-Scan dokumentierten High-CVEs sind in [SECURITY.md](SECURITY.md) einzeln aufgeführt; die installierten Bibliotheken werden durch die gepinnten Lockdateien nicht automatisch sicherer. Der Quellstand ist weder als CVE-frei noch als produktionsreif zu betrachten.
+**Built for maintainability. Designed for controlled AI access.**
 
-## Lizenz und Veröffentlichung
+Python · MCP · Home Assistant · ARM64 · Security by Design
 
-Apache-2.0 gilt ausschließlich für diejenigen Projekt-Quelldateien, deren Rechte diese Lizenzierung zulassen. Fremde Quellen und Abhängigkeiten behalten ihre eigenen Lizenzen. Im öffentlichen Repository dürfen nur im finalen Snapshot geprüfte Dateien und erforderliche Hinweise enthalten sein. Das private Entwicklungsrepository und seine Historie werden nicht automatisch veröffentlicht.
+</div>
