@@ -127,7 +127,7 @@ https://github.com/keanuutah/raspberry-mcp-gateway-public
 
 In Home Assistant: **Einstellungen → Apps → App-Store → Repositories** und die URL hinzufügen, sofern sie noch nicht vorhanden ist. Anschließend die App **Raspberry MCP Gateway** auswählen. Bei der erstmaligen Installation **nicht starten**, bevor die Konfiguration geprüft ist.
 
-> Die App ist aktuell als **Experimental** markiert. Der bereits nachgewiesene Betrieb auf einer privaten HAOS-Installation ist keine allgemeine Freigabe für fremde Produktionssysteme. Installation und Betrieb erfolgen eigenverantwortlich; bitte die Einschränkungen in [SECURITY.md](SECURITY.md) berücksichtigen.
+> Die App ist aktuell als **Experimental** markiert. Der bereits nachgewiesene Betrieb auf einer privaten HAOS-Installation ist keine allgemeine Freigabe für fremde Produktionssysteme. Installation und Betrieb erfolgen eigenverantwortlich unter Beachtung der dokumentierten Sicherheitsgrenzen.
 
 ### App-Konfiguration
 
@@ -166,7 +166,7 @@ Dieser Befehl baut **nur das Container-Image**. Er installiert oder startet kein
 | **Öffentliche Bereitstellung** | Quellcode und HAOS-App-Metadaten, **kein vorgebautes Container-Image**. |
 | **Release-Einstufung** | `experimental` – keine allgemeine Produktionsfreigabe. |
 
-**Transparenz:** Die erfolgreiche private Inbetriebnahme ist ein Praxistest, keine vollständige, unabhängige Sicherheitszertifizierung. Offene Prüfungen werden nicht als bestanden dargestellt. Bekannte CVEs und weitere Sicherheitsgrenzen sind in **[SECURITY.md](SECURITY.md)** dokumentiert.
+**Transparenz:** Die erfolgreiche private Inbetriebnahme ist ein Praxistest, keine vollständige, unabhängige Sicherheitszertifizierung. Offene Prüfungen werden nicht als bestanden dargestellt; bekannte CVEs und Sicherheitsgrenzen bleiben gesondert dokumentiert.
 
 ## Weiterentwicklung
 
@@ -176,7 +176,7 @@ Der Fokus liegt auf einer einfachen, sicheren und wartungsarmen Integration. Wei
 
 Der eigene, entsprechend gekennzeichnete Projektquellcode wird unter **[Apache License 2.0](LICENSE)** veröffentlicht, soweit die erforderlichen Rechte vorliegen. Externe Komponenten – darunter Home Assistant, FastMCP, Python, Alpine und der Tunnel-Client – behalten ihre jeweiligen Lizenzen und Markenrechte. Das Projekt ist **keine offizielle Veröffentlichung von Home Assistant oder OpenAI**.
 
-Sicherheitsmeldungen und Hinweise zur verantwortlichen Offenlegung: **[SECURITY.md](SECURITY.md)**. Bitte niemals Zugangsdaten oder private Home-Assistant-Konfigurationen in öffentlichen Issues posten.
+Für Sicherheitsmeldungen die dokumentierten Wege zur vertraulichen Offenlegung verwenden. Bitte niemals Zugangsdaten oder private Home-Assistant-Konfigurationen in öffentlichen Issues posten.
 
 ---
 
