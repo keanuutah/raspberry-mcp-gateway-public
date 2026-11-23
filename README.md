@@ -1,6 +1,6 @@
 # Raspberry MCP Gateway
 
-> **Vorbereiteter öffentlicher Dokumentationsentwurf – noch kein freigegebenes Release.** Die aktuelle Entwicklungsfassung (`1.0.1b1`, experimentell) ist nicht unter HAOS abgenommen und nicht für einen ungeprüften produktiven Einsatz freigegeben.
+> **Am 23.11.2026 als Source-only-Quellcode veröffentlicht – kein freigegebenes HAOS-Installations- oder Produktrelease.** Die aktuelle Entwicklungsfassung (`1.0.1b1`, experimentell) ist nicht unter HAOS abgenommen und nicht für einen ungeprüften produktiven Einsatz freigegeben.
 
 Raspberry MCP Gateway ergänzt Home Assistant OS um einen lokalen MCP-Gateway-Prozess, der über **einen** OpenAI-Tunnel erreichbar ist. Die Anwendung verbindet die bewusst beschränkten Home-Assistant-MCP-Werkzeuge mit lokalen, standardmäßig lesenden Diagnose- und Vorschaufunktionen. Schreibfunktionen sind separat geschützt und standardmäßig deaktiviert.
 
@@ -26,7 +26,7 @@ Der Befehl ist für einen ARM64-fähigen Docker-Builder vorgesehen und wurde als
 
 ## Home Assistant OS: App-Konfiguration
 
-Die enthaltene `openai_mcp_tunnel/config.yaml` legt das App-Schema fest. `name` und `stage: experimental` kennzeichnen diesen **nicht produktionsfreigegebenen Quellstand**; `slug: openai_mcp_tunnel` und die sicheren Laufzeitoptionen bleiben für die bestehenden Integrationen unverändert. Eine projektbezogene `url` wird erst nach Einrichtung eines freigegebenen öffentlichen Repositorys eingetragen:
+Die enthaltene `openai_mcp_tunnel/config.yaml` legt das App-Schema fest. `name` und `stage: experimental` kennzeichnen diesen **nicht produktionsfreigegebenen Quellstand**; `slug: openai_mcp_tunnel` und die sicheren Laufzeitoptionen bleiben für die bestehenden Integrationen unverändert. Das öffentliche Quellcode-Repository ist bereits eingerichtet; in der enthaltenen App-Konfiguration ist noch keine projektbezogene `url` eingetragen:
 
 | Option | Zweck / sichere Vorgabe |
 | --- | --- |
@@ -52,7 +52,7 @@ Siehe [Sicherheitsleitfaden](SECURITY.md) für Betrieb, Zugangsdaten, Freigaben,
 
 
 
-**Transparenz zum Sicherheitsstatus:** Der Quellcode wird, falls separat freigegeben, **ohne Hersteller-Image und ohne Zusage einer getesteten HAOS-Installation** angeboten. Die neun im vorherigen ARM64-Build offenen High-CVEs sind in [SECURITY.md](SECURITY.md) einzeln aufgeführt; die installierten Bibliotheken werden durch die gepinnten Lockdateien nicht automatisch sicherer. Der Quellstand ist weder als CVE-frei noch als produktionsreif zu betrachten.
+**Transparenz zum Sicherheitsstatus:** Der veröffentlichte Quellcode wird **ohne Hersteller-Image und ohne Zusage einer getesteten HAOS-Installation** angeboten. Die neun im vorherigen ARM64-Build offenen High-CVEs sind in [SECURITY.md](SECURITY.md) einzeln aufgeführt; die installierten Bibliotheken werden durch die gepinnten Lockdateien nicht automatisch sicherer. Der Quellstand ist weder als CVE-frei noch als produktionsreif zu betrachten.
 
 ## Lizenz und Veröffentlichung
 
