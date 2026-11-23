@@ -6,8 +6,9 @@ commands, write, toggle confinement, or attempt forbidden operations.
 from pathlib import Path
 import re
 
-# HAOS Supervisor loads the local add-on under the local_ prefixed profile.
-PROFILE = 'local_openai_mcp_tunnel'
+# Restrict identity to Home Assistant's local or repository-hash add-on slug.
+# A generic enforced AppArmor profile is not sufficient.
+PROFILE_PATTERN = re.compile(r'((?:local|[0-9a-f]{8})_openai_mcp_tunnel)')
 MAX_READ = 256 * 1024
 
 def _read(path):
@@ -28,9 +29,10 @@ def _mode(text):
 def _label(text):
     if text is None:
         return None
-    value = text.strip()
-    # Do not expose other unrelated labels or potentially sensitive paths.
-    return PROFILE if re.search(r'(?<![\w.-])'+re.escape(PROFILE)+r'(?![\w.-])',value) else None
+    # Full match excludes unrelated or maliciously similar enforced profiles.
+    match = re.fullmatch(PROFILE_PATTERN.pattern +
+                         r' \((?:enforce|complain|kill|unconfined)\)', text.strip())
+    return match.group(1) if match else None
 
 def _policy_checks(contents):
     if contents is None:
@@ -61,16 +63,19 @@ def diagnose(proc_current='/proc/self/attr/current', proc_init='/proc/1/attr/cur
     init_label=_label(pid1)
     active_profile_mode='unavailable'
     if profile_list is not None:
-        found=re.search(r'(?m)^'+re.escape(PROFILE)+r'\s+\((enforce|complain|kill|unconfined)\)\s*$',profile_list)
-        active_profile_mode=found.group(1).lower() if found else 'not_listed'
-    # Only current process (not PID 1) determines whether this MCP tool is confined.
-    proven = current_mode=='enforce' and current_label==PROFILE
+        # Check the actual MCP process identity, not a hard-coded local slug.
+        found = (re.search(r'(?m)^' + re.escape(current_label) +
+                           r'\s+\((enforce|complain|kill|unconfined)\)\s*$', profile_list)
+                 if current_label else None)
+        active_profile_mode = found.group(1).lower() if found else 'not_listed'
+    # Only current process (not PID 1 or a listed policy) proves confinement.
+    proven = current_mode == 'enforce' and current_label is not None
     return {
         'read_only':True,
-        'mcp_process': {'label_matches_expected':current_label==PROFILE if current is not None else None,
+        'mcp_process': {'label_matches_expected':current_label is not None if current is not None else None,
                         'mode':current_mode,'enforce_confirmed':proven,
                         'read_error':current_error},
-        'container_init_process': {'label_matches_expected':init_label==PROFILE if pid1 is not None else None,
+        'container_init_process': {'label_matches_expected':init_label==current_label if pid1 is not None and current_label is not None else (False if pid1 is not None else None),
                                    'mode':init_mode,'read_error':pid1_error},
         'securityfs_profile_list': {'mode_for_expected_profile':active_profile_mode,
                                     'read_error':profiles_error},
