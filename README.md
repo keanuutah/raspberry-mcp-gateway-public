@@ -7,7 +7,7 @@
 **Ein Python-basiertes MCP-Gateway für die kontrollierte Verbindung von ChatGPT und Home Assistant.**  
 Ein Tunnel. Klar definierte Berechtigungen. Nachvollziehbare Änderungen.
 
-[![Version](https://img.shields.io/badge/version-1.1.0-2563eb?style=flat-square)](openai_mcp_tunnel/config.yaml)
+[![Version](https://img.shields.io/badge/version-1.1.1-2563eb?style=flat-square)](openai_mcp_tunnel/config.yaml)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-OS-41bdf5?style=flat-square)](https://www.home-assistant.io/)
 [![Platform](https://img.shields.io/badge/platform-ARM64-64748b?style=flat-square)](#installation-und-selbstbau)
 [![Python](https://img.shields.io/badge/Python-3.15-3776ab?style=flat-square)](openai_mcp_tunnel/Dockerfile)
@@ -160,7 +160,7 @@ Dieser Befehl baut **nur das Container-Image**. Er installiert oder startet kein
 | Thema | Stand |
 | --- | --- |
 | **v1.1.0 auf ARM64/HAOS** | Läuft in einer privaten Home-Assistant-Installation; Tunnel und lesende MCP-/Gateway-Funktionen wurden praktisch bestätigt. |
-| **AppArmor** | Die laufende App meldet `enforce`; die korrekte Zuordnung zum GitHub-App-Profil ist noch nicht abschließend bestätigt. Eine gezielte Diagnosekorrektur ist im privaten Entwicklungszweig getestet, aber noch nicht öffentlich veröffentlicht. |
+| **AppArmor** | Die derzeit laufende v1.1.0 meldete `enforce`; die GitHub-Profilzuordnung war noch nicht bestätigt. Die korrigierte Profilnamen-Diagnose ist als v1.1.1 im öffentlichen Quellcode enthalten und wurde in privater CI getestet; die Live-Nachprüfung nach dem Update steht noch aus. |
 | **CVE-Status** | Im letzten nativen ARM64-Scan: **0 Critical**, **9 unterschiedliche High-CVEs** (14 Pakettreffer). Die High-Risiken sind einzeln bewertet und unter dokumentierten Bedingungen akzeptiert; es waren keine geeigneten Stable-Fixversionen verfügbar. Kein offizieller Gate-PASS für den zuletzt veröffentlichten Image-Stand nachgewiesen. |
 | **Automatisierte Tests** | Reguläre private CI und gezielte Regressionstests erfolgreich; keine allgemeine HAOS-Laborabnahme. |
 | **Öffentliche Bereitstellung** | Quellcode und HAOS-App-Metadaten, **kein vorgebautes Container-Image**. |
