@@ -1,6 +1,6 @@
 # Raspberry MCP Gateway
 
-> **Am 23.11.2026 als Source-only-Quellcode veröffentlicht – kein freigegebenes HAOS-Installations- oder Produktrelease.** Die aktuelle Entwicklungsfassung (`1.0.1b1`, experimentell) ist nicht unter HAOS abgenommen und nicht für einen ungeprüften produktiven Einsatz freigegeben.
+> **Am 23.11.2026 als Source-only-Quellcode veröffentlicht – kein freigegebenes HAOS-Installations- oder Produktrelease.** Die veröffentlichte App-Quellfassung (`1.1.0`, experimentell) ist nicht unter HAOS abgenommen und nicht für einen ungeprüften produktiven Einsatz freigegeben.
 
 Raspberry MCP Gateway ergänzt Home Assistant OS um einen lokalen MCP-Gateway-Prozess, der über **einen** OpenAI-Tunnel erreichbar ist. Die Anwendung verbindet die bewusst beschränkten Home-Assistant-MCP-Werkzeuge mit lokalen, standardmäßig lesenden Diagnose- und Vorschaufunktionen. Schreibfunktionen sind separat geschützt und standardmäßig deaktiviert.
 
@@ -26,7 +26,7 @@ Der Befehl ist für einen ARM64-fähigen Docker-Builder vorgesehen und wurde als
 
 ## Home Assistant OS: App-Konfiguration
 
-Die enthaltene `openai_mcp_tunnel/config.yaml` legt das App-Schema fest. `name` und `stage: experimental` kennzeichnen diesen **nicht produktionsfreigegebenen Quellstand**; `slug: openai_mcp_tunnel` und die sicheren Laufzeitoptionen bleiben für die bestehenden Integrationen unverändert. Das öffentliche Quellcode-Repository ist bereits eingerichtet; in der enthaltenen App-Konfiguration ist noch keine projektbezogene `url` eingetragen:
+Die enthaltene `openai_mcp_tunnel/config.yaml` legt das App-Schema fest. `stage: experimental` kennzeichnet diesen **nicht produktionsfreigegebenen Quellstand**; `slug: openai_mcp_tunnel` und die sicheren Laufzeitoptionen bleiben für die bestehenden Integrationen unverändert. Das öffentliche Quellcode-Repository ist bereits eingerichtet; in der enthaltenen App-Konfiguration ist noch keine projektbezogene `url` eingetragen:
 
 | Option | Zweck / sichere Vorgabe |
 | --- | --- |
@@ -46,13 +46,13 @@ Die App startet manuell (`boot: manual`); `apparmor: true` ist konfiguriert. Der
 
 Die aktuelle Entwicklungsfassung hat in privater CI mit Python 3.15/FastMCP 4.2.4 **284 Offline-Tests** bestanden, darunter die Beschränkung des HA-Proxys auf drei Werkzeuge sowie Verweigerungs- und Reconnect-Tests. Das ist **kein** vollständiger HAOS-/AppArmor-Nachweis.
 
-Im zuletzt geprüften ARM64-Image waren **neun bekannte High-CVE-IDs** in SQLite/OpenSSL offen; der Sicherheits-Freigabecheck hat erwartungsgemäß blockiert. Die SLSA-v1-Herkunft des gepinnten offiziellen Tunnel-OCI-Image-Indexes ist inzwischen bestätigt. **Keine Sicherheits- oder Produktionsfreigabe** ableiten.
+Im nativen ARM64-Scan zur v1.1.0 wurden **neun bekannte High-CVE-IDs** in SQLite/OpenSSL und keine Critical-CVEs gemeldet. Die neun High-Risiken sind einzeln bewertet; das aktualisierte CVE-Gate hat seine regulären Tests bestanden, aber für den veröffentlichten Stand liegt noch kein eigenständiger offizieller Gate-PASS vor. Die SLSA-v1-Herkunft des gepinnten offiziellen Tunnel-OCI-Image-Indexes ist inzwischen bestätigt. **Keine Sicherheits- oder Produktionsfreigabe** ableiten.
 
 Siehe [Sicherheitsleitfaden](SECURITY.md) für Betrieb, Zugangsdaten, Freigaben, Grenzen und Wiederherstellung.
 
 
 
-**Transparenz zum Sicherheitsstatus:** Der veröffentlichte Quellcode wird **ohne Hersteller-Image und ohne Zusage einer getesteten HAOS-Installation** angeboten. Die neun im vorherigen ARM64-Build offenen High-CVEs sind in [SECURITY.md](SECURITY.md) einzeln aufgeführt; die installierten Bibliotheken werden durch die gepinnten Lockdateien nicht automatisch sicherer. Der Quellstand ist weder als CVE-frei noch als produktionsreif zu betrachten.
+**Transparenz zum Sicherheitsstatus:** Der veröffentlichte Quellcode wird **ohne Hersteller-Image und ohne Zusage einer getesteten HAOS-Installation** angeboten. Die neun im ARM64-Scan dokumentierten High-CVEs sind in [SECURITY.md](SECURITY.md) einzeln aufgeführt; die installierten Bibliotheken werden durch die gepinnten Lockdateien nicht automatisch sicherer. Der Quellstand ist weder als CVE-frei noch als produktionsreif zu betrachten.
 
 ## Lizenz und Veröffentlichung
 
