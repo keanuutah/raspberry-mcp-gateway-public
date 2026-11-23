@@ -1,0 +1,32 @@
+name: "Raspberry MCP Gateway (Development)"
+slug: "openai_mcp_tunnel"
+version: "1.0.1b1"
+description: "Entwicklungskandidat fuer eigenen ARM64-Selbstbau; nicht unter HAOS abgenommen"
+arch:
+  - aarch64
+startup: application
+boot: manual
+init: false
+stage: experimental
+apparmor: true
+legacy: true
+map:
+  - type: homeassistant_config
+    read_only: false
+    path: /homeassistant_config
+options:
+  CONTROL_PLANE_TUNNEL_ID: ""
+  CONTROL_PLANE_API_KEY: ""
+  MCP_SERVER_URL: "http://homeassistant.local:8123/api/mcp"
+  HA_ACCESS_TOKEN: ""
+  MCP_WRITE_ENABLED: false
+  APPROVED_ACTION: ""
+  BACKUP_RETENTION_MODE: "off"
+schema:
+  CONTROL_PLANE_TUNNEL_ID: str
+  CONTROL_PLANE_API_KEY: password
+  MCP_SERVER_URL: str
+  HA_ACCESS_TOKEN: password
+  MCP_WRITE_ENABLED: bool
+  APPROVED_ACTION: str?
+  BACKUP_RETENTION_MODE: list(off|preview)

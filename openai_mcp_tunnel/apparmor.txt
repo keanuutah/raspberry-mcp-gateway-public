@@ -1,0 +1,60 @@
+# Raspberry MCP Gateway 0.2.15-rc1 - constrained filesystem write allowlist.
+# The profile name MUST match slug in config.yaml.
+# Read access remains broad in the isolated app container for Python,
+# the OpenAI tunnel-client and Home Assistant MCP reads.
+# Writing /homeassistant_config itself is deliberately NOT permitted.
+#include <tunables/global>
+
+profile openai_mcp_tunnel flags=(attach_disconnected,mediate_deleted) {
+  #include <abstractions/base>
+
+  # The tunnel must make outbound HTTPS and Home Assistant HTTP connections.
+  network,
+  unix,
+  signal (send, receive),
+
+  # Read and map system/runtime files but do NOT grant blanket file write.
+  /** rm,
+
+  # Program execution: no arbitrary execution from HA configuration files.
+  /bin/** ix,
+  /usr/bin/** ix,
+  /usr/local/bin/** ix,
+  /app/run.sh ix,
+
+  # App private storage, options and temporary/runtime resources.
+  /data/ rw,
+  /data/options.json r,
+  deny /data/options.json w,
+  /data/approvals.lock rwk,
+  /data/approvals_used.json rwk,
+  /data/approvals_used.json.tmp rwk,
+  # Isolated dashboard approval ledger and JSON snapshots; never /config/.storage.
+  /data/retention_guard/ rw,
+  /data/retention_guard/** rwk,
+  /data/dashboard_guard/ rw,
+  /data/dashboard_guard/** rwk,
+  /tmp/ rw,
+  /tmp/** rwk,
+  /run/ rw,
+  /run/** rwk,
+  /dev/null rw,
+  /dev/zero rw,
+  /dev/tty rw,
+  /dev/urandom r,
+  /dev/random r,
+
+  # Home Assistant packages: direct children only, no nested writes.
+  /homeassistant_config/packages/ rw,
+  /homeassistant_config/packages/* rwk,
+
+  # Backups: directory must exist before enabling writes.
+  # No w permission on /homeassistant_config/ (protect root files and dirs).
+  /homeassistant_config/yaml_backups/ rw,
+  /homeassistant_config/yaml_backups/*.yaml.bak rwk,
+  # Gateway-created .yaml.bak files only; do not permit arbitrary siblings.
+  # Only named GW-14 quarantine directories and their immediate files.
+  # Do not grant recursive writes to arbitrary nested backup directories.
+  /homeassistant_config/yaml_backups/.gw14-quarantine-*/ rw,
+  /homeassistant_config/yaml_backups/.gw14-quarantine-*/* rwk,
+}

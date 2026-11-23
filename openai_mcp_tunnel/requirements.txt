@@ -1,0 +1,5 @@
+# R2 platform refresh candidate (2026-11-22): approved only for review tests.
+# These are direct pins; transitive dependencies must be reviewed/locked after testing.
+fastmcp==4.2.4
+PyYAML==6.0.4
+websockets==17.4
