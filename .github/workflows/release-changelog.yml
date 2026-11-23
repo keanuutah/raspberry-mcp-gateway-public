@@ -1,0 +1,53 @@
+name: Public release changelog check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-changelog:
+    name: App version matches changelog
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate version and newest release notes
+        shell: python
+        run: |
+          import re
+          from pathlib import Path
+
+          config = Path("openai_mcp_tunnel/config.yaml").read_text(encoding="utf-8")
+          changelog = Path("openai_mcp_tunnel/CHANGELOG.md").read_text(encoding="utf-8")
+          versions = re.findall(r'^version:\\s*["\\\']?([^"\\\'\\s#]+)', config, flags=re.M)
+          if len(versions) != 1:
+              raise SystemExit("Expected exactly one app version in config.yaml")
+          version = versions[0]
+          if not re.fullmatch(r"\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?", version):
+              raise SystemExit(f"Invalid app version: {version}")
+
+          headings = list(re.finditer(
+              r"^##\\s+v?(\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?)(?=\\s|$)",
+              changelog, flags=re.M
+          ))
+          if not headings:
+              raise SystemExit("CHANGELOG.md has no versioned release section")
+          latest = headings[0].group(1)
+          if latest != version:
+              raise SystemExit(
+                  f"Version mismatch: config.yaml={version}, newest CHANGELOG.md={latest}"
+              )
+          end = headings[1].start() if len(headings) > 1 else len(changelog)
+          notes = changelog[headings[0].end():end]
+          if not re.search(r"(?m)^\\s*-\\s+\\S", notes):
+              raise SystemExit(f"Release {version} has no bullet-point release notes")
+          print(f"Release metadata OK: v{version} with changelog notes")
