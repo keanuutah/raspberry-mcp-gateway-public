@@ -28,15 +28,15 @@ jobs:
 
           config = Path("openai_mcp_tunnel/config.yaml").read_text(encoding="utf-8")
           changelog = Path("openai_mcp_tunnel/CHANGELOG.md").read_text(encoding="utf-8")
-          versions = re.findall(r'^version:\\s*["\\\']?([^"\\\'\\s#]+)', config, flags=re.M)
+          versions = re.findall(r'^version:\s*"([^"]+)"\s*$', config, re.M)
           if len(versions) != 1:
-              raise SystemExit("Expected exactly one app version in config.yaml")
+              raise SystemExit("Expected exactly one quoted app version in config.yaml")
           version = versions[0]
-          if not re.fullmatch(r"\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?", version):
+          if not re.fullmatch(r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?", version):
               raise SystemExit(f"Invalid app version: {version}")
 
           headings = list(re.finditer(
-              r"^##\\s+v?(\\d+\\.\\d+\\.\\d+(?:-[0-9A-Za-z.-]+)?)(?=\\s|$)",
+              r"^##\s+v?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)(?=\s|$)",
               changelog, flags=re.M
           ))
           if not headings:
@@ -48,6 +48,6 @@ jobs:
               )
           end = headings[1].start() if len(headings) > 1 else len(changelog)
           notes = changelog[headings[0].end():end]
-          if not re.search(r"(?m)^\\s*-\\s+\\S", notes):
+          if not re.search(r"(?m)^\s*-\s+\S", notes):
               raise SystemExit(f"Release {version} has no bullet-point release notes")
           print(f"Release metadata OK: v{version} with changelog notes")
