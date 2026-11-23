@@ -155,23 +155,9 @@ docker build --platform linux/arm64 \
 
 Dieser Befehl baut **nur das Container-Image**. Er installiert oder startet keine Home-Assistant-App. Das Repository veröffentlicht **kein vorgebautes OCI-/GHCR-Image**. Für Builds werden gepinnte Basisimages sowie die Dateien `apk-arm64.lock` und `requirements-arm64.lock` verwendet.
 
-## Projektstatus
-
-| Thema | Stand |
-| --- | --- |
-| **v1.1.0 auf ARM64/HAOS** | Läuft in einer privaten Home-Assistant-Installation; Tunnel und lesende MCP-/Gateway-Funktionen wurden praktisch bestätigt. |
-| **AppArmor** | Die derzeit laufende v1.1.0 meldete `enforce`; die GitHub-Profilzuordnung war noch nicht bestätigt. Die korrigierte Profilnamen-Diagnose ist als v1.1.1 im öffentlichen Quellcode enthalten und wurde in privater CI getestet; die Live-Nachprüfung nach dem Update steht noch aus. |
-| **CVE-Status** | Im letzten nativen ARM64-Scan: **0 Critical**, **9 unterschiedliche High-CVEs** (14 Pakettreffer). Die High-Risiken sind einzeln bewertet und unter dokumentierten Bedingungen akzeptiert; es waren keine geeigneten Stable-Fixversionen verfügbar. Kein offizieller Gate-PASS für den zuletzt veröffentlichten Image-Stand nachgewiesen. |
-| **Automatisierte Tests** | Reguläre private CI und gezielte Regressionstests erfolgreich; keine allgemeine HAOS-Laborabnahme. |
-| **Öffentliche Bereitstellung** | Quellcode und HAOS-App-Metadaten, **kein vorgebautes Container-Image**. |
-| **Release-Einstufung** | `experimental` – keine allgemeine Produktionsfreigabe. |
-
-**Transparenz:** Die erfolgreiche private Inbetriebnahme ist ein Praxistest, keine vollständige, unabhängige Sicherheitszertifizierung. Offene Prüfungen werden nicht als bestanden dargestellt; bekannte CVEs und Sicherheitsgrenzen bleiben gesondert dokumentiert.
-
 ## Weiterentwicklung
 
-Der Fokus liegt auf einer einfachen, sicheren und wartungsarmen Integration. Weitere Verbesserungen betreffen insbesondere die abschließende AppArmor-Profilverifikation auf GitHub-installierten Apps, die Release-Nachweise und die technische Dokumentation. Änderungen sollen bestehende Betriebsabläufe verbessern, statt parallele Systeme aufzubauen.
-
+Im Mittelpunkt stehen eine wartungsarme Architektur, nachvollziehbare Releases und die kontinuierliche Verbesserung von Sicherheit und Bedienbarkeit. Neue Funktionen werden gezielt ergänzt und durch automatisierte Tests abgesichert.
 ## Lizenz und Verantwortung
 
 Der eigene, entsprechend gekennzeichnete Projektquellcode wird unter **[Apache License 2.0](LICENSE)** veröffentlicht, soweit die erforderlichen Rechte vorliegen. Externe Komponenten – darunter Home Assistant, FastMCP, Python, Alpine und der Tunnel-Client – behalten ihre jeweiligen Lizenzen und Markenrechte. Das Projekt ist **keine offizielle Veröffentlichung von Home Assistant oder OpenAI**.
