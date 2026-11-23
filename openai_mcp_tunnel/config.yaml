@@ -1,7 +1,7 @@
-name: "Raspberry MCP Gateway (Development)"
+name: "Raspberry MCP Gateway"
 slug: "openai_mcp_tunnel"
-version: "1.0.1b1"
-description: "Entwicklungskandidat fuer eigenen ARM64-Selbstbau; nicht unter HAOS abgenommen"
+version: "1.1.0"
+description: "v1.1.0 Releasekandidat: ARM64-Selbstbau, MCP-Tunnel und YAML Guard; HAOS-Abnahme offen"
 arch:
   - aarch64
 startup: application
