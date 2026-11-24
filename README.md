@@ -7,12 +7,12 @@
 **Ein Python-basiertes MCP-Gateway für die kontrollierte Verbindung von ChatGPT und Home Assistant.**  
 Ein Tunnel. Klar definierte Berechtigungen. Nachvollziehbare Änderungen.
 
-[![Version](https://img.shields.io/badge/version-1.1.1-2563eb?style=flat-square)](openai_mcp_tunnel/config.yaml)
+[![Version](https://img.shields.io/badge/version-1.1.2-2563eb?style=flat-square)](openai_mcp_tunnel/config.yaml)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-OS-41bdf5?style=flat-square)](https://www.home-assistant.io/)
 [![Platform](https://img.shields.io/badge/platform-ARM64-64748b?style=flat-square)](#installation)
 [![Python](https://img.shields.io/badge/Python-3.15-3776ab?style=flat-square)](openai_mcp_tunnel/Dockerfile)
 [![License](https://img.shields.io/badge/license-Apache--2.0-16a34a?style=flat-square)](LICENSE)
-[![Status](https://img.shields.io/badge/status-experimental-f59e0b?style=flat-square)](#projektstatus)
+[![Status](https://img.shields.io/badge/status-stable-16a34a?style=flat-square)](#projektstatus)
 
 **[Funktionen](#funktionen)** · **[Architektur](#architektur)** · **[Security by Design](#security-by-design)** · **[Installation](#installation)** · **[Engineering & CI](#engineering--ci)**
 
@@ -127,7 +127,7 @@ https://github.com/keanuutah/raspberry-mcp-gateway-public
 
 In Home Assistant: **Einstellungen → Apps → App-Store → Repositories** und die URL hinzufügen, sofern sie noch nicht vorhanden ist. Anschließend die App **Raspberry MCP Gateway** auswählen. Bei der erstmaligen Installation **nicht starten**, bevor die Konfiguration geprüft ist.
 
-> Die App ist aktuell als **Experimental** markiert. Der bereits nachgewiesene Betrieb auf einer privaten HAOS-Installation ist keine allgemeine Freigabe für fremde Produktionssysteme. Installation und Betrieb erfolgen eigenverantwortlich unter Beachtung der dokumentierten Sicherheitsgrenzen.
+> Die App ist ab v1.1.2 für den dokumentierten, begrenzten Funktionsumfang als **Stable** eingestuft. Der historische AppArmor-Kernel-Negativtest, die aktuelle Enforce-Diagnose und die isolierte Raspberry-Recovery-Simulation sind im jeweiligen Nachweisumfang anerkannt. Ein vollständiger HAOS-Neustart-/Disaster-Recovery-Nachweis liegt nicht vor. Installation und Betrieb erfolgen eigenverantwortlich unter Beachtung der [bekannten Restrisiken](SECURITY.md).
 
 ### App-Konfiguration
 
@@ -141,7 +141,7 @@ In Home Assistant: **Einstellungen → Apps → App-Store → Repositories** und
 | `APPROVED_ACTION` | Standardmäßig leer; Einmalfreigaben nicht wiederverwenden. |
 | `BACKUP_RETENTION_MODE` | Standardmäßig `off`. |
 
-Die App ist mit `boot: manual`, `apparmor: true` und `stage: experimental` definiert. **Keine zweite Instanz mit denselben Tunnel-Zugangsdaten parallel starten.**
+Die App ist mit `boot: manual`, `apparmor: true` und ab v1.1.2 mit `stage: stable` definiert. **Keine zweite Instanz mit denselben Tunnel-Zugangsdaten parallel starten.**
 
 ### Image separat mit Docker bauen (optional)
 
