@@ -1,6 +1,6 @@
 name: "Raspberry MCP Gateway"
 slug: "openai_mcp_tunnel"
-version: "1.1.1"
+version: "1.1.2"
 url: "https://github.com/keanuutah/raspberry-mcp-gateway-public"
 description: "Sichere Verbindung zwischen ChatGPT und Home Assistant – mit MCP-Tunnel, geschützter YAML-Verwaltung und Dashboard-Funktionen."
 arch:
@@ -8,7 +8,7 @@ arch:
 startup: application
 boot: manual
 init: false
-stage: experimental
+stage: stable
 apparmor: true
 legacy: true
 map:
