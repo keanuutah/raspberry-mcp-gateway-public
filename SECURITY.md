@@ -55,16 +55,13 @@ Für v1.1.1 sind **nicht** als vollständiger integrierter Labornachweis bestät
 
 ## 4. Known Risks & Limitations
 
-### Bekannte High-CVEs im zuletzt geprüften ARM64-Build
+### Abhängigkeiten und bekannte Sicherheitsrisiken
 
-Der dokumentierte Grype-Scan meldete **14 High-Matches zu neun unterschiedlichen CVE-IDs**, **0 Critical**. Die betroffenen Paketversionen wurden einzeln bewertet; die neun High-Risiken wurden für den **konkret geprüften Paket-/Image-Stand** unter dokumentierten technischen Bedingungen als `accepted_risk` behandelt.
+Das Gateway wird als Home-Assistant-App aus dem veröffentlichten Quellcode gebaut. Ein vorgefertigtes Container-Image wird nicht angeboten. Auch beim Build durch Home Assistant werden die im Dockerfile und in den Lockdateien festgelegten Abhängigkeiten verwendet.
 
-**SQLite/OpenSSL – bekannte CVE-IDs:**
+Diese Abhängigkeiten werden im privaten Entwicklungsprozess mit SBOM und Schwachstellenscans überprüft. Im zuletzt geprüften nativen ARM64-Build wurden **14 High-Matches zu neun unterschiedlichen CVEs**, aber **keine Critical-Meldung**, festgestellt. Alle neun High-Risiken wurden für den **konkret geprüften Paket- und Image-Stand** einzeln bewertet und unter dokumentierten Bedingungen akzeptiert; die Einzelbewertungen verbleiben in den privaten Entwicklungsnachweisen.
 
-- `CVE-2026-119586`, `CVE-2026-119379`, `CVE-2026-119374`, `CVE-2026-119373`
-- `CVE-2026-124709`, `CVE-2026-107494`, `CVE-2026-121482`, `CVE-2026-84786`, `CVE-2026-107493`
-
-Beim letzten dokumentierten Paketabgleich standen keine unterstützten Stable-Fixversionen für die betroffenen Stände bereit. **Risikoakzeptanz bedeutet keine Behebung.** Sie gilt nicht automatisch für neue Images, geänderte Pakete oder spätere Builds. Ein erneuter offizieller **PASS** des Container-CVE-Release-Gates nach den Entscheidungen ist für den aktuellen Stand **nicht nachgewiesen**. Neue Fixversionen erfordern erneute Prüfung; Schwachstellen werden nicht pauschal unterdrückt.
+**Risikoakzeptanz bedeutet keine Behebung.** Die Entscheidungen gelten nicht automatisch für andere oder spätere Builds. Neue Paketversionen und verfügbare Sicherheitsupdates müssen erneut bewertet werden. Ein erneuter erfolgreicher formaler Container-CVE-Release-Gate-Lauf nach diesen Entscheidungen ist bislang **nicht nachgewiesen**.
 
 ### OCI-Herkunft und Lizenzierung
 
