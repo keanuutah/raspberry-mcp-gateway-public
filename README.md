@@ -9,12 +9,12 @@ Ein Tunnel. Klar definierte Berechtigungen. Nachvollziehbare Änderungen.
 
 [![Version](https://img.shields.io/badge/version-1.1.1-2563eb?style=flat-square)](openai_mcp_tunnel/config.yaml)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-OS-41bdf5?style=flat-square)](https://www.home-assistant.io/)
-[![Platform](https://img.shields.io/badge/platform-ARM64-64748b?style=flat-square)](#installation-und-selbstbau)
+[![Platform](https://img.shields.io/badge/platform-ARM64-64748b?style=flat-square)](#installation)
 [![Python](https://img.shields.io/badge/Python-3.15-3776ab?style=flat-square)](openai_mcp_tunnel/Dockerfile)
 [![License](https://img.shields.io/badge/license-Apache--2.0-16a34a?style=flat-square)](LICENSE)
 [![Status](https://img.shields.io/badge/status-experimental-f59e0b?style=flat-square)](#projektstatus)
 
-**[Funktionen](#funktionen)** · **[Architektur](#architektur)** · **[Security by Design](#security-by-design)** · **[Installation](#installation-und-selbstbau)** · **[Engineering & CI](#engineering--ci)**
+**[Funktionen](#funktionen)** · **[Architektur](#architektur)** · **[Security by Design](#security-by-design)** · **[Installation](#installation)** · **[Engineering & CI](#engineering--ci)**
 
 </div>
 
@@ -76,7 +76,7 @@ Sicherheit wird nicht nur in der Dokumentation beschrieben, sondern in mehreren 
 | **Nachvollziehbarkeit** | Diff- und SHA256-Vorschau vor Änderungen; vorhandene Sicherungs- und Rückfallmechanismen. |
 | **Supply Chain** | Festgelegte Basisimage-Digests, Paket-Lockdateien und ARM64-Buildprüfungen. |
 
-**Wichtige technische Grenze:** Das Home-Assistant-Konfigurationsverzeichnis ist für die App technisch schreibbar eingebunden. Die tatsächliche Beschränkung hängt daher von der geladenen AppArmor-Policy und den Anwendungsgates ab; `MCP_WRITE_ENABLED=false` ersetzt auch keine eingeschränkten Rechte des verwendeten Home-Assistant-Tokens.
+**Sicherheitsgrenze:** Die Home-Assistant-Konfiguration ist technisch schreibbar eingebunden. AppArmor beschränkt Dateisystemzugriffe auf definierte Bereiche; zusätzliche Anwendungskontrollen und Einzelfreigaben schützen Änderungen. Schreibfunktionen sind standardmäßig deaktiviert. Für den Home-Assistant-Zugriff ist ein möglichst eingeschränktes Token erforderlich.
 
 Details zu Sicherheitsgrenzen, Restrisiken und dem Umgang mit Schwachstellen: **[SECURITY.md](SECURITY.md)**.
 
@@ -103,9 +103,9 @@ Der Entwicklungsprozess verwendet:
 4. **Software Bill of Materials (SBOM)** im SPDX-Format und Schwachstellenprüfung mit Grype.
 5. **Dokumentierte Restrisikoentscheidungen**, statt CVE-Meldungen pauschal zu unterdrücken.
 
-Die genannten CI-Prüfungen stammen aus dem privaten Entwicklungsprozess. **Dieses öffentliche Snapshot-Repository bietet derzeit keinen eigenständigen öffentlichen CI-Status-Badge.** Ein bestandener Offline-Test ersetzt keine vollständige HAOS- oder Sicherheitsabnahme.
+Die Entwicklung und umfangreiche Qualitätssicherung erfolgen im privaten Entwicklungsrepository. Das öffentliche Repository verfügt zusätzlich über eine eigene GitHub-Actions-Prüfung, die Versionsnummer und Changelog abgleicht. Ein aktives Branch-Ruleset erzwingt Pull Requests und erfolgreiche Prüfungen vor Änderungen an `main`.
 
-## Installation und Selbstbau
+## Installation
 
 ### Voraussetzungen
 
@@ -142,18 +142,6 @@ In Home Assistant: **Einstellungen → Apps → App-Store → Repositories** und
 | `BACKUP_RETENTION_MODE` | Standardmäßig `off`. |
 
 Die App ist mit `boot: manual`, `apparmor: true` und `stage: experimental` definiert. **Keine zweite Instanz mit denselben Tunnel-Zugangsdaten parallel starten.**
-
-### Image separat mit Docker bauen
-
-Für einen eigenen, ARM64-fähigen Docker-Builder aus dem Repository-Root:
-
-```bash
-docker build --platform linux/arm64 \
-  --tag raspberry-mcp-gateway:local-review \
-  ./openai_mcp_tunnel
-```
-
-Dieser Befehl baut **nur das Container-Image**. Er installiert oder startet keine Home-Assistant-App. Das Repository veröffentlicht **kein vorgebautes OCI-/GHCR-Image**. Für Builds werden gepinnte Basisimages sowie die Dateien `apk-arm64.lock` und `requirements-arm64.lock` verwendet.
 
 ## Weiterentwicklung
 
