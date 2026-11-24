@@ -143,6 +143,20 @@ In Home Assistant: **Einstellungen → Apps → App-Store → Repositories** und
 
 Die App ist mit `boot: manual`, `apparmor: true` und `stage: experimental` definiert. **Keine zweite Instanz mit denselben Tunnel-Zugangsdaten parallel starten.**
 
+### Image separat mit Docker bauen (optional)
+
+Für die Installation über das oben beschriebene **Home-Assistant-App-Repository** ist kein manueller Docker-Build erforderlich: Home Assistant erstellt das Container-Image anhand des mitgelieferten Dockerfiles.
+
+Wer das ARM64-Image unabhängig von Home Assistant bauen oder prüfen möchte, kann aus dem Repository-Root einen eigenen Docker-Builder verwenden:
+
+```bash
+docker build --platform linux/arm64 \
+  --tag raspberry-mcp-gateway:local-review \
+  ./openai_mcp_tunnel
+```
+
+Der Befehl **baut nur das Container-Image**; er installiert oder startet keine Home-Assistant-App. Das Repository veröffentlicht kein vorgebautes OCI-/GHCR-Image. Der Build verwendet die im Dockerfile festgelegten Basisimages sowie `apk-arm64.lock` und `requirements-arm64.lock`.
+
 ## Weiterentwicklung
 
 Im Mittelpunkt stehen eine wartungsarme Architektur, nachvollziehbare Releases und die kontinuierliche Verbesserung von Sicherheit und Bedienbarkeit. Neue Funktionen werden gezielt ergänzt und durch automatisierte Tests abgesichert.
