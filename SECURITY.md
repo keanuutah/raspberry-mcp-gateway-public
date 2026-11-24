@@ -1,7 +1,7 @@
 # Security Policy & Architecture
 
-> **Raspberry MCP Gateway v1.1.1 · Experimental · Stand 24.11.2026**  
-> Öffentlicher Quellcode für eine Home-Assistant-OS-App (ARM64). Es wird **kein vorgebautes OCI-/GHCR-Image** bereitgestellt. Die App wurde auf einer privaten HAOS-Installation betrieben und in definiertem Umfang getestet; daraus folgt **keine allgemeine Produktionsfreigabe**.
+> **Raspberry MCP Gateway v1.1.2 · Stable (begrenzter Einsatzumfang) · Stand 24.11.2026**  
+> Öffentlicher Quellcode für eine Home-Assistant-OS-App (ARM64). Es wird **kein vorgebautes OCI-/GHCR-Image** bereitgestellt. Die vorherige v1.1.1 wurde auf einer privaten HAOS-Installation betrieben und in definiertem Umfang getestet. Die Einstufung `stable` betrifft den dokumentierten Funktionsumfang; daraus folgt **keine allgemeine Sicherheitszertifizierung oder vollständige HAOS-Produktionsabnahme**.
 
 ## 1. Security Overview
 
@@ -40,10 +40,11 @@ Der Home-Assistant-Konfigurations-Mount unter `/homeassistant_config` ist techni
 
 | Bereich | Nachweis und Grenze |
 | --- | --- |
-| **HAOS-Betrieb v1.1.1** | Ein Tunnel sowie lesende MCP-, YAML- und Dashboard-Funktionen auf der installierten GitHub-App erfolgreich geprüft. |
-| **AppArmor v1.1.1** | Laufender MCP-Prozess und Container-Init-Prozess melden passendes Profil im Modus `enforce`; Diagnose `overall=enforce_confirmed`. Die Kernel-Profilliste via `securityfs` war nicht verfügbar. |
+| **HAOS-Betrieb v1.1.1 (Basis der v1.1.2-Einstufung)** | Ein Tunnel sowie lesende MCP-, YAML- und Dashboard-Funktionen auf der installierten GitHub-App erfolgreich geprüft. |
+| **AppArmor v1.1.1 (unveränderte Policy für v1.1.2)** | Laufender MCP-Prozess und Container-Init-Prozess melden passendes Profil im Modus `enforce`; Diagnose `overall=enforce_confirmed`. Die Kernel-Profilliste via `securityfs` war nicht verfügbar. |
 | **Backup-Prüfung v1.1.1** | Vorhandenes Gateway-Backup lesend auf Existenz, Größe und erwarteten SHA256-Wert geprüft. |
-| **Historische Security-/Recovery-Tests** | Am 18.11.2026 wurden unter damaligem Teststand ein verbotener Schreibzugriff (`errno=13`), isolierte YAML-Backup-Wiederherstellungen mit Byte-/Hash-Vergleich, Dashboard-Snapshot-Restore und Backup-Retention geprüft. Diese Nachweise gelten **nur für ihren damaligen Umfang und Stand**. |
+| **Historische Security-/Recovery-Tests** | Am 18.11.2026 wurden unter damaligem Teststand ein verbotener Schreibzugriff (`errno=13`), isolierte YAML-Backup-Wiederherstellungen mit Byte-/Hash-Vergleich, Dashboard-Snapshot-Restore und Backup-Retention geprüft. Diese Nachweise gelten **nur für ihren damaligen Umfang und Stand**. Die AppArmor-Quellpolicy wurde mit v1.1.1/v1.1.2 nicht verändert; der damalige Test wird ohne erneuten produktiven Negativtest als historischer Wirksamkeitsbeleg anerkannt. |
+| **Raspberry-Recovery-Simulation 24.11.2026** | Auf Raspberry in einer isolierten Terminalumgebung 17/17 Unit-Tests zur Prozessabbruch-/Recovery-Logik bestanden; kein tatsächlicher Neustart von HAOS oder produktivem Gateway. Terminalprofil `docker-default (enforce)` ist nicht das Gateway-Profil. |
 | **Private CI / ARM64** | Offline-Regressionen sowie native ARM64-Build-, Lizenz-, SBOM- und CVE-Prüfungen im privaten Entwicklungsprozess dokumentiert; nicht gleichzusetzen mit einer vollständigen v1.1.1-HAOS-Abnahme. |
 | **Public Release Gate** | GitHub Actions prüft App-Version gegen neuesten Changelog-Abschnitt und vorhandene Release-Notizen. Aktives Ruleset [Public Release Gate #27946217](https://github.com/keanuutah/raspberry-mcp-gateway-public/rules/27946217) verlangt einen Pull Request und den erfolgreichen Check `App version matches changelog` für `main`; keine Bypass-Ausnahmen. |
 
@@ -51,7 +52,7 @@ Die öffentliche CI ist eine **Release-Metadatenprüfung**; sie ersetzt keine vo
 
 ### Grenzen der Abnahme
 
-Für v1.1.1 sind **nicht** als vollständiger integrierter Labornachweis bestätigt: neue gezielte Kernel-AppArmor-DENIED-Tests für sämtliche relevanten Pfade, kontrolliert abgebrochene Quarantäne mit Recovery sowie ein vollständiger Neustart-/Disaster-Recovery-Ablauf. Historische Testergebnisse werden nicht als neue versionsspezifische Tests ausgegeben.
+Für v1.1.2 sind **nicht** als vollständiger integrierter Labornachweis bestätigt: neue gezielte Kernel-AppArmor-DENIED-Tests unter dem GitHub-App-Profil für sämtliche relevanten Pfade, integrierte Recovery nach echtem HAOS-Neustart sowie ein vollständiger Disaster-Recovery-Ablauf. Historische Testergebnisse und die 17 isolierten Raspberry-Tests werden nicht als neuer versionsspezifischer End-to-End-Nachweis ausgegeben. Diese Nachweisgrenzen sind für die begrenzte `stable`-Einstufung dokumentiert und werden nicht allein aufgrund des Versionswechsels erneut getestet.
 
 ## 4. Known Risks & Limitations
 
@@ -79,4 +80,4 @@ Ein Git-Checkout allein stellt weder Home-Assistant-Daten noch Supervisor-App-Zu
 
 ---
 
-*Diese Security Policy dokumentiert den öffentlich nachvollziehbaren Sicherheitsansatz und den ausdrücklich begrenzten Teststand von v1.1.1; sie stellt keine Zertifizierung oder Garantie für fremde Installationen dar.*
+*Diese Security Policy dokumentiert den öffentlich nachvollziehbaren Sicherheitsansatz und den ausdrücklich begrenzten Teststand, auf dem die `stable`-Einstufung von v1.1.2 beruht; sie stellt keine Zertifizierung oder Garantie für fremde Installationen dar.*
