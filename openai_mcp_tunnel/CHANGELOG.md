@@ -12,7 +12,6 @@
 ### Qualität und Sicherheit
 - AppArmor-Schutz im laufenden Gateway bestätigt; historischer Kernel-Negativtest bestanden.
 - Isolierte Recovery-Tests auf dem Raspberry erfolgreich (17/17).
-- Bekannte Risiken und Grenzen der Nachweise sind weiterhin in [SECURITY.md](../SECURITY.md) dokumentiert.
 
 ## 1.1.1 – 23.11.2026
 
@@ -40,4 +39,4 @@
 ### Betrieb und Sicherheitsstand
 - Die App wurde in einer privaten Home-Assistant-OS-Installation gestartet; Tunnel und lesende MCP-Funktionen wurden praktisch geprüft.
 - Status `experimental`; keine allgemeine HAOS-Produktionsfreigabe oder vollständige AppArmor-/Recovery-Abnahme.
-- Bekannte High-CVEs und verbleibende Nachweise sind in [SECURITY.md](../SECURITY.md) beschrieben.
+- Bekannte High-CVEs und verbleibende Nachweise sind in der Sicherheitsdokumentation beschrieben.
