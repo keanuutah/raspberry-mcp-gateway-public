@@ -2,6 +2,18 @@
 
 Änderungen an der Home-Assistant-App **Raspberry MCP Gateway**.
 
+## 1.1.2 – 24.11.2026
+
+### Status und Release-Metadaten
+- Die Home-Assistant-App wird für den dokumentierten und begrenzten Einsatzumfang von `experimental` auf `stable` eingestuft.
+- Versions-, README- und Sicherheitsdokumentation an die neue Einstufung angepasst; AppArmor-Policy, Gateway-Code, Dockerfile, Paketversionen, Laufzeitoptionen und sichere Standardwerte bleiben unverändert.
+
+### Bereits vorhandene Nachweise und Grenzen
+- Historischer AppArmor-Kernel-Negativtest vom 18.11.2026 (`errno=13`) wird für seinen damaligen Umfang anerkannt. Die unveränderte Policy wird unter der derzeit installierten v1.1.1 durch eine lesende Diagnose mit passender Profilkennung und `enforce` ergänzt. Ein erneuter versionsspezifischer Kernel-DENIED-Test ist nicht erfolgt.
+- Isolierte Raspberry-Recovery-Simulation am 24.11.2026: 17/17 Tests bestanden. Ein echter HAOS-Neustart oder vollständiger Disaster-Recovery-Test wurde nicht durchgeführt.
+- Neun bekannte High-CVEs aus einem historisch geprüften ARM64-Build wurden einzeln und versionsgebunden als Restrisiko bewertet, nicht behoben. Eine erneute Container-Sicherheitsfreigabe für einen neuen Build wird nicht behauptet.
+- Die `stable`-Einstufung ist keine Zertifizierung und keine pauschale Freigabe aller Schreib- und Recovery-Szenarien.
+
 ## 1.1.1 – 23.11.2026
 
 ### Behoben
